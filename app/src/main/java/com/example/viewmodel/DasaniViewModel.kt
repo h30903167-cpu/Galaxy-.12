@@ -269,16 +269,20 @@ class DasaniViewModel : ViewModel() {
         _toastMessage.value = null
     }
 
+    private fun normalizePhone(raw: String): String {
+        val digits = raw.filter { it.isDigit() }
+        return if (digits.length > 10 && digits.startsWith("91")) digits.takeLast(10) else digits
+    }
+
     fun login(phoneInput: String, passInput: String): Boolean {
-        val cleanInput = phoneInput.trim()
-        if (passInput.isBlank() || cleanInput.isBlank()) {
-            _toastMessage.value = "Please enter valid UPI ID and password."
+        val cleanPhone = normalizePhone(phoneInput)
+        if (cleanPhone.length != 10 || passInput.isBlank()) {
+            _toastMessage.value = "Please enter valid 10-digit phone number and password."
             return false
         }
-        val key = cleanInput.lowercase(Locale.ROOT)
-        val stored = registeredAccounts[key]
+        val stored = registeredAccounts[cleanPhone]
         if (stored == null) {
-            _toastMessage.value = "Account not registered yet. Please Register first."
+            _toastMessage.value = "Number not registered yet. Please Register first."
             return false
         }
         if (stored.loginPassword != passInput) {
@@ -298,16 +302,10 @@ class DasaniViewModel : ViewModel() {
         invite: String,
         upiIdInput: String = ""
     ): Pair<Boolean, String> {
-        val cleanInput = phoneInput.trim()
-        val customUpi = upiIdInput.trim()
-        val resolvedUpi = when {
-            customUpi.isNotBlank() -> customUpi
-            cleanInput.contains("@") -> cleanInput
-            else -> ""
-        }
+        val cleanPhone = normalizePhone(phoneInput)
 
-        if (!resolvedUpi.contains("@") || resolvedUpi.length < 5) {
-            return Pair(false, "Please enter a valid UPI ID (e.g. yourname@okaxis)")
+        if (cleanPhone.length != 10) {
+            return Pair(false, "Please enter a valid 10-digit phone number")
         }
         if (pass1.length < 4) {
             return Pair(false, "Login password must be at least 4 characters")
@@ -316,15 +314,18 @@ class DasaniViewModel : ViewModel() {
             return Pair(false, "Passwords do not match")
         }
         if (withdrawPass.length < 4) {
-            return Pair(false, "Withdrawal PIN must be at least 4 digits")
+            return Pair(false, "Withdrawal password must be at least 4 characters")
+        }
+        if (registeredAccounts.containsKey(cleanPhone)) {
+            return Pair(false, "Number already registered. Please Login.")
         }
 
         val newAccountId = generateAlphaCode("GLX-", 6)
         val newAccount = UserAccount(
             accountId = newAccountId,
-            phone = "",
-            boundUpiId = resolvedUpi,
-            registeredWithUpi = true,
+            phone = cleanPhone,
+            boundUpiId = upiIdInput.trim(),
+            registeredWithUpi = false,
             loginPassword = pass1,
             withdrawalPassword = withdrawPass,
             inviteCode = if (invite.isNotBlank()) invite.trim() else generateAlphaCode("INV-", 5),
@@ -335,17 +336,18 @@ class DasaniViewModel : ViewModel() {
             totalWithdrawn = 0.0,
             isLoggedIn = true
         )
-        registeredAccounts[resolvedUpi.lowercase(Locale.ROOT)] = newAccount
+        registeredAccounts[cleanPhone] = newAccount
         registeredAccounts[newAccountId.lowercase(Locale.ROOT)] = newAccount
         _userAccount.value = newAccount
-        _toastMessage.value = "Registration Successful with UPI: $resolvedUpi"
+        _toastMessage.value = "Registration Successful!"
         return Pair(true, "Success")
     }
 
     fun logout() {
         val current = _userAccount.value
-        if (current.boundUpiId.isNotBlank()) {
-            registeredAccounts[current.boundUpiId.lowercase(Locale.ROOT)] = current.copy(isLoggedIn = false)
+        val phoneKey = normalizePhone(current.phone)
+        if (phoneKey.isNotBlank()) {
+            registeredAccounts[phoneKey] = current.copy(isLoggedIn = false)
         }
         if (current.accountId.isNotBlank()) {
             registeredAccounts[current.accountId.lowercase(Locale.ROOT)] = current.copy(isLoggedIn = false)
@@ -502,10 +504,10 @@ class DasaniViewModel : ViewModel() {
         }
         val activePin = currentAcc.withdrawalPassword
         if (withdrawalPasswordInput.length < 4) {
-            return Pair(false, "Enter a 4-6 digit Withdrawal PIN")
+            return Pair(false, "Enter Withdrawal Password (min 4 characters)")
         }
         if (activePin.isNotBlank() && withdrawalPasswordInput != activePin) {
-            return Pair(false, "Incorrect Withdrawal Password! Please enter the 4-6 digit PIN.")
+            return Pair(false, "Incorrect Withdrawal Password! Please try again.")
         }
         if (accountNo.isBlank() && upiId.isBlank()) {
             return Pair(false, "Please provide Bank Account Number or UPI ID")
@@ -597,14 +599,19 @@ class DasaniViewModel : ViewModel() {
             _toastMessage.value = "Please enter a valid UPI ID (e.g. yourname@okaxis)"
             return false
         }
-        val oldKey = _userAccount.value.boundUpiId.lowercase(Locale.ROOT)
+        val oldUpiKey = _userAccount.value.boundUpiId.lowercase(Locale.ROOT)
         val updated = _userAccount.value.copy(
             boundUpiId = clean,
             registeredWithUpi = true
         )
         _userAccount.value = updated
-        if (oldKey.isNotBlank()) registeredAccounts.remove(oldKey)
-        registeredAccounts[clean.lowercase(Locale.ROOT)] = updated
+        if (oldUpiKey.isNotBlank() && oldUpiKey != clean.lowercase(Locale.ROOT)) {
+            registeredAccounts.remove(oldUpiKey)
+        }
+        val phoneKey = normalizePhone(updated.phone)
+        if (phoneKey.isNotBlank()) {
+            registeredAccounts[phoneKey] = updated
+        }
         if (updated.accountId.isNotBlank()) {
             registeredAccounts[updated.accountId.lowercase(Locale.ROOT)] = updated
         }
@@ -620,8 +627,12 @@ class DasaniViewModel : ViewModel() {
             boundIfsc = ifsc.trim().uppercase()
         )
         _userAccount.value = updated
-        if (updated.boundUpiId.isNotBlank()) {
-            registeredAccounts[updated.boundUpiId.lowercase(Locale.ROOT)] = updated
+        val phoneKey = normalizePhone(updated.phone)
+        if (phoneKey.isNotBlank()) {
+            registeredAccounts[phoneKey] = updated
+        }
+        if (updated.accountId.isNotBlank()) {
+            registeredAccounts[updated.accountId.lowercase(Locale.ROOT)] = updated
         }
         _toastMessage.value = "Bank account details saved!"
     }

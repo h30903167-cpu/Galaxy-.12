@@ -351,13 +351,13 @@ fun WithdrawScreen(
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Column {
                                         Text(
-                                            text = "Auto-Linked Registration UPI",
+                                            text = "Payout UPI ID",
                                             color = Color.White,
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold
                                         )
                                         Text(
-                                            text = "Funds will be credited directly to your registered UPI ID",
+                                            text = "Funds will be credited directly to your linked UPI ID",
                                             color = DasaniTextSecondary,
                                             fontSize = 11.sp
                                         )
@@ -405,7 +405,7 @@ fun WithdrawScreen(
                                 }
                             },
                             visualTransformation = if (withdrawPassVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             shape = RoundedCornerShape(10.dp),
                             singleLine = true,
                             colors = OutlinedTextFieldDefaults.colors(

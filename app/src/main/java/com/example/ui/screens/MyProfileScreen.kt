@@ -93,8 +93,13 @@ fun MyProfileScreen(
 
                     Column(modifier = Modifier.weight(1f)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
+                            val displayTitle = when {
+                                userAccount.boundUpiId.isNotBlank() -> userAccount.boundUpiId
+                                userAccount.phone.length >= 4 -> "Galaxy Member (••••${userAccount.phone.takeLast(4)})"
+                                else -> "Galaxy Member"
+                            }
                             Text(
-                                text = userAccount.boundUpiId.ifBlank { "Galaxy Member" },
+                                text = displayTitle,
                                 color = Color.White,
                                 fontSize = 16.sp,
                                 fontWeight = FontWeight.Bold

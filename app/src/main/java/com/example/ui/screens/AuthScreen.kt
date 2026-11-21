@@ -40,8 +40,7 @@ fun AuthScreen(
 ) {
     val incomingReferralCode by viewModel.incomingReferralCode.collectAsStateWithLifecycle()
     var isRegisterTab by remember { mutableStateOf(true) }
-    var upiInput by remember { mutableStateOf("") }
-    var loginIdentifierInput by remember { mutableStateOf("") }
+    var phoneInput by remember { mutableStateOf("") }
     var passwordInput by remember { mutableStateOf("") }
     var confirmPasswordInput by remember { mutableStateOf("") }
     var withdrawalPasswordInput by remember { mutableStateOf("") }
@@ -67,9 +66,9 @@ fun AuthScreen(
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        Color(0xFF1B5E20), // Agriculture Green top
-                        Color(0xFF0F3325), // Transition
-                        Color(0xFF0B1713)  // Deep dark bottom
+                        Color(0xFF00D2C4),
+                        Color(0xFF0B2B26),
+                        Color(0xFF0B1713)
                     )
                 )
             )
@@ -81,11 +80,11 @@ fun AuthScreen(
                 .padding(bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Top Hero Banner (Galaxy Manual Seeder)
+            // Top Hero Banner + Overlapping Circle Logo
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(280.dp)
+                    .height(250.dp)
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.galaxy_banner_top),
@@ -96,12 +95,11 @@ fun AuthScreen(
                     contentScale = ContentScale.Crop
                 )
 
-                // Circular glowing Galaxy Seeder logo centered at the bottom of the hero banner
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .offset(y = 48.dp)
-                        .size(100.dp)
+                        .offset(y = 46.dp)
+                        .size(96.dp)
                         .background(Color(0xFF0B1F17), CircleShape)
                         .border(3.dp, DasaniPrimary, CircleShape)
                         .padding(4.dp),
@@ -118,9 +116,9 @@ fun AuthScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(56.dp))
+            Spacer(modifier = Modifier.height(54.dp))
 
-            // Main Dark Auth Card
+            // Main Dark Auth Card matching Screenshot
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -158,7 +156,7 @@ fun AuthScreen(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Box(
                                     modifier = Modifier
-                                        .width(48.dp)
+                                        .width(56.dp)
                                         .height(3.dp)
                                         .background(DasaniPrimary, RoundedCornerShape(2.dp))
                                 )
@@ -182,7 +180,7 @@ fun AuthScreen(
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Box(
                                     modifier = Modifier
-                                        .width(48.dp)
+                                        .width(56.dp)
                                         .height(3.dp)
                                         .background(DasaniPrimary, RoundedCornerShape(2.dp))
                                 )
@@ -190,83 +188,64 @@ fun AuthScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(18.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
-                    if (isRegisterTab) {
-                        OutlinedTextField(
-                            value = upiInput,
-                            onValueChange = { upiInput = it.trim() },
-                            label = { Text("Your UPI ID (VPA)") },
-                            placeholder = { Text("e.g. yourname@okaxis", color = Color(0xFF6B7D82), fontSize = 13.sp) },
-                            leadingIcon = {
-                                Icon(Icons.Default.AccountBalanceWallet, contentDescription = null, tint = DasaniPrimary)
-                            },
-                            singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1A2124),
-                                unfocusedContainerColor = Color(0xFF1A2124),
-                                focusedBorderColor = DasaniPrimary,
-                                unfocusedBorderColor = Color(0xFF263238),
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White
-                            ),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("upi_input_register")
+                    // +91 | Enter Phone Number Box (Same as Screenshot)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(Color(0xFF1E2427), RoundedCornerShape(8.dp))
+                            .border(1.dp, Color(0xFF2B353A), RoundedCornerShape(8.dp))
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "+91",
+                            color = Color.White,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            modifier = Modifier.padding(end = 10.dp)
                         )
-
-                        Spacer(modifier = Modifier.height(6.dp))
-                        Row(
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .background(Color(0xFF0D251E), RoundedCornerShape(8.dp))
-                                .padding(8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(Icons.Default.Verified, contentDescription = null, tint = DasaniPrimary, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "Binds your UPI ID for payouts & withdrawals",
-                                color = DasaniTextSecondary,
-                                fontSize = 11.sp
-                            )
-                        }
-                    } else {
-                        OutlinedTextField(
-                            value = loginIdentifierInput,
-                            onValueChange = { loginIdentifierInput = it.trim() },
-                            label = { Text("UPI ID or Account ID") },
-                            placeholder = { Text("e.g. yourname@okaxis", color = Color(0xFF6B7D82), fontSize = 13.sp) },
-                            leadingIcon = {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = DasaniPrimary)
+                                .width(1.dp)
+                                .height(22.dp)
+                                .background(Color(0xFF3A474D))
+                        )
+                        TextField(
+                            value = phoneInput,
+                            onValueChange = { raw ->
+                                phoneInput = raw.filter { it.isDigit() }.take(10)
                             },
+                            placeholder = {
+                                Text("Enter Phone Number", color = Color(0xFF7B8B90), fontSize = 14.sp)
+                            },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1A2124),
-                                unfocusedContainerColor = Color(0xFF1A2124),
-                                focusedBorderColor = DasaniPrimary,
-                                unfocusedBorderColor = Color(0xFF263238),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color.Transparent,
+                                unfocusedIndicatorColor = Color.Transparent,
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White
                             ),
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("login_identifier_input")
+                                .weight(1f)
+                                .testTag("phone_input")
                         )
                     }
 
                     Spacer(modifier = Modifier.height(14.dp))
 
-                    // Password Input
-                    OutlinedTextField(
+                    // Password Input (Underline Dark Style)
+                    TextField(
                         value = passwordInput,
                         onValueChange = { passwordInput = it },
                         placeholder = {
                             Text(
-                                if (isRegisterTab) "Enter login password (min 4 chars)" else "Enter Password",
-                                color = Color(0xFF6B7D82),
+                                if (isRegisterTab) "Please new password" else "Enter Password",
+                                color = Color(0xFF7B8B90),
                                 fontSize = 14.sp
                             )
                         },
@@ -275,19 +254,18 @@ fun AuthScreen(
                                 Icon(
                                     imageVector = if (passVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                     contentDescription = "Toggle password visibility",
-                                    tint = Color(0xFF6B7D82)
+                                    tint = Color(0xFF9EAAB0)
                                 )
                             }
                         },
                         visualTransformation = if (passVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         singleLine = true,
-                        shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFF1A2124),
-                            unfocusedContainerColor = Color(0xFF1A2124),
-                            focusedBorderColor = DasaniPrimary,
-                            unfocusedBorderColor = Color(0xFF263238),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = DasaniPrimary,
+                            unfocusedIndicatorColor = Color(0xFF2B353A),
                             focusedTextColor = Color.White,
                             unfocusedTextColor = Color.White
                         ),
@@ -299,29 +277,30 @@ fun AuthScreen(
                     if (isRegisterTab) {
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Password confirmation
-                        OutlinedTextField(
+                        // Confirm Password Input
+                        TextField(
                             value = confirmPasswordInput,
                             onValueChange = { confirmPasswordInput = it },
-                            placeholder = { Text("Confirm login password", color = Color(0xFF6B7D82), fontSize = 14.sp) },
+                            placeholder = {
+                                Text("Please new password again", color = Color(0xFF7B8B90), fontSize = 14.sp)
+                            },
                             trailingIcon = {
                                 IconButton(onClick = { confirmPassVisible = !confirmPassVisible }) {
                                     Icon(
                                         imageVector = if (confirmPassVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                         contentDescription = "Toggle confirm password",
-                                        tint = Color(0xFF6B7D82)
+                                        tint = Color(0xFF9EAAB0)
                                     )
                                 }
                             },
                             visualTransformation = if (confirmPassVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1A2124),
-                                unfocusedContainerColor = Color(0xFF1A2124),
-                                focusedBorderColor = DasaniPrimary,
-                                unfocusedBorderColor = Color(0xFF263238),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = DasaniPrimary,
+                                unfocusedIndicatorColor = Color(0xFF2B353A),
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White
                             ),
@@ -332,29 +311,30 @@ fun AuthScreen(
 
                         Spacer(modifier = Modifier.height(14.dp))
 
-                        // Withdrawal Password (PIN)
-                        OutlinedTextField(
+                        // Withdrawal Password Input
+                        TextField(
                             value = withdrawalPasswordInput,
                             onValueChange = { withdrawalPasswordInput = it },
-                            placeholder = { Text("Enter Withdrawal PIN (4-6 digits)", color = Color(0xFF6B7D82), fontSize = 14.sp) },
+                            placeholder = {
+                                Text("Enter Withdrawal Password", color = Color(0xFF7B8B90), fontSize = 14.sp)
+                            },
                             trailingIcon = {
                                 IconButton(onClick = { withdrawPassVisible = !withdrawPassVisible }) {
                                     Icon(
                                         imageVector = if (withdrawPassVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
                                         contentDescription = "Toggle withdrawal password",
-                                        tint = Color(0xFF6B7D82)
+                                        tint = Color(0xFF9EAAB0)
                                     )
                                 }
                             },
                             visualTransformation = if (withdrawPassVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.NumberPassword),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1A2124),
-                                unfocusedContainerColor = Color(0xFF1A2124),
-                                focusedBorderColor = DasaniPrimary,
-                                unfocusedBorderColor = Color(0xFF263238),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = DasaniPrimary,
+                                unfocusedIndicatorColor = Color(0xFF2B353A),
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White
                             ),
@@ -366,24 +346,25 @@ fun AuthScreen(
                         Spacer(modifier = Modifier.height(14.dp))
 
                         // Invitation Code Field
-                        OutlinedTextField(
+                        TextField(
                             value = inviteCodeInput,
                             onValueChange = { inviteCodeInput = it },
-                            placeholder = { Text("Invitation Code", color = Color(0xFF6B7D82), fontSize = 14.sp) },
+                            placeholder = {
+                                Text("Invitation Code (Optional)", color = Color(0xFF7B8B90), fontSize = 14.sp)
+                            },
                             leadingIcon = {
                                 Icon(
                                     imageVector = Icons.Default.PersonAdd,
                                     contentDescription = "Invitation Code",
-                                    tint = DasaniPrimary
+                                    tint = Color(0xFF9EAAB0)
                                 )
                             },
                             singleLine = true,
-                            shape = RoundedCornerShape(10.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedContainerColor = Color(0xFF1A2124),
-                                unfocusedContainerColor = Color(0xFF1A2124),
-                                focusedBorderColor = DasaniPrimary,
-                                unfocusedBorderColor = Color(0xFF263238),
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = DasaniPrimary,
+                                unfocusedIndicatorColor = Color(0xFF2B353A),
                                 focusedTextColor = Color.White,
                                 unfocusedTextColor = Color.White
                             ),
@@ -392,7 +373,7 @@ fun AuthScreen(
                                 .testTag("invite_code_input")
                         )
 
-                        Spacer(modifier = Modifier.height(14.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
                         // Terms Checkbox
                         Row(
@@ -422,12 +403,11 @@ fun AuthScreen(
                         onClick = {
                             if (isRegisterTab) {
                                 val res = viewModel.register(
-                                    phoneInput = upiInput,
+                                    phoneInput = phoneInput,
                                     pass1 = passwordInput,
                                     pass2 = confirmPasswordInput,
                                     withdrawPass = withdrawalPasswordInput,
-                                    invite = inviteCodeInput,
-                                    upiIdInput = upiInput
+                                    invite = inviteCodeInput
                                 )
                                 if (res.first) {
                                     onAuthSuccess()
@@ -436,7 +416,7 @@ fun AuthScreen(
                                 }
                             } else {
                                 val success = viewModel.login(
-                                    phoneInput = loginIdentifierInput,
+                                    phoneInput = phoneInput,
                                     passInput = passwordInput
                                 )
                                 if (success) onAuthSuccess()
@@ -453,7 +433,7 @@ fun AuthScreen(
                         )
                     ) {
                         Text(
-                            text = if (isRegisterTab) "Register & Bind UPI" else "Login with Password",
+                            text = if (isRegisterTab) "Register" else "Login",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold
                         )
